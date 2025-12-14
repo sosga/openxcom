@@ -3091,6 +3091,7 @@ void Mod::loadFile(const FileMap::FileRecord &filerec, ModScript &parsers)
 				UfopaediaTypeId type = ruleReader["type_id"].readVal<UfopaediaTypeId>();
 				switch (type)
 				{
+				case UFOPAEDIA_TYPE_UNIT: rule = new ArticleDefinitionUnit(); break;
 				case UFOPAEDIA_TYPE_SOLDIER: rule = new ArticleDefinitionSoldier(); break;
 				case UFOPAEDIA_TYPE_CRAFT: rule = new ArticleDefinitionCraft(); break;
 				case UFOPAEDIA_TYPE_CRAFT_WEAPON: rule = new ArticleDefinitionCraftWeapon(); break;

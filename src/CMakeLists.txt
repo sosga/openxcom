@@ -410,6 +410,7 @@ set ( ufopedia_src
   Ufopaedia/ArticleStateTFTDUso.cpp
   Ufopaedia/ArticleStateTFTDVehicle.cpp
   Ufopaedia/ArticleStateUfo.cpp
+  Ufopaedia/ArticleStateUnit.cpp
   Ufopaedia/ArticleStateVehicle.cpp
   Ufopaedia/StatsForNerdsState.cpp
   Ufopaedia/Ufopaedia.cpp

@@ -736,6 +736,7 @@
     <ClCompile Include="Ufopaedia\ArticleStateTFTDUso.cpp" />
     <ClCompile Include="Ufopaedia\ArticleStateTFTDVehicle.cpp" />
     <ClCompile Include="Ufopaedia\ArticleStateUfo.cpp" />
+    <ClCompile Include="Ufopaedia\ArticleStateUnit.cpp" />
     <ClCompile Include="Ufopaedia\ArticleStateVehicle.cpp" />
     <ClCompile Include="Ufopaedia\StatsForNerdsState.cpp" />
     <ClCompile Include="Ufopaedia\Ufopaedia.cpp" />
@@ -1231,6 +1232,7 @@
     <ClInclude Include="Ufopaedia\ArticleStateTFTDUso.h" />
     <ClInclude Include="Ufopaedia\ArticleStateTFTDVehicle.h" />
     <ClInclude Include="Ufopaedia\ArticleStateUfo.h" />
+    <ClInclude Include="Ufopaedia\ArticleStateUnit.h" />
     <ClInclude Include="Ufopaedia\ArticleStateVehicle.h" />
     <ClInclude Include="Ufopaedia\StatsForNerdsState.h" />
     <ClInclude Include="Ufopaedia\Ufopaedia.h" />
