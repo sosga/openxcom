@@ -724,6 +724,7 @@
     <ClCompile Include="Ufopaedia\ArticleStateCraft.cpp" />
     <ClCompile Include="Ufopaedia\ArticleStateCraftWeapon.cpp" />
     <ClCompile Include="Ufopaedia\ArticleStateItem.cpp" />
+    <ClCompile Include="Ufopaedia\ArticleStateSoldier.cpp" />
     <ClCompile Include="Ufopaedia\ArticleStateText.cpp" />
     <ClCompile Include="Ufopaedia\ArticleStateTextImage.cpp" />
     <ClCompile Include="Ufopaedia\ArticleStateTFTD.cpp" />
@@ -1218,6 +1219,7 @@
     <ClInclude Include="Ufopaedia\ArticleStateCraft.h" />
     <ClInclude Include="Ufopaedia\ArticleStateCraftWeapon.h" />
     <ClInclude Include="Ufopaedia\ArticleStateItem.h" />
+    <ClInclude Include="Ufopaedia\ArticleStateSoldier.h" />
     <ClInclude Include="Ufopaedia\ArticleStateText.h" />
     <ClInclude Include="Ufopaedia\ArticleStateTextImage.h" />
     <ClInclude Include="Ufopaedia\ArticleStateTFTD.h" />

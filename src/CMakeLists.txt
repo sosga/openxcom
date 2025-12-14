@@ -398,6 +398,7 @@ set ( ufopedia_src
   Ufopaedia/ArticleStateCraft.cpp
   Ufopaedia/ArticleStateCraftWeapon.cpp
   Ufopaedia/ArticleStateItem.cpp
+  Ufopaedia/ArticleStateSoldier.cpp
   Ufopaedia/ArticleStateText.cpp
   Ufopaedia/ArticleStateTextImage.cpp
   Ufopaedia/ArticleStateTFTD.cpp
