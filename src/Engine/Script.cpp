@@ -4094,9 +4094,9 @@ void ScriptParserEventsBase::loadEvents(const YAML::YamlNodeReader& scripts)
 		return name;
 	};
 
-	if (const YAML::YamlNodeReader& curr = scripts[ryml::to_csubstr(getName())])
+	if (scripts)
 	{
-		for (const YAML::YamlNodeReader& i : curr.children())
+		for (const YAML::YamlNodeReader& i : scripts.children())
 		{
 			const auto deleteNode = getNode(i, "delete");
 			const auto newNode = getNode(i, "new");
@@ -4498,7 +4498,7 @@ void ScriptGlobal::pushParser(const std::string& groupName, ScriptParserEventsBa
 {
 	parser->logScriptMetadata(true, groupName);
 	_parserNames.insert(std::make_pair(parser->getName(), parser));
-	_parserEvents.push_back(parser);
+	_parserEvents.insert(std::make_pair(std::string_view(parser->getName()), parser));
 }
 
 /**
@@ -4554,7 +4554,7 @@ void ScriptGlobal::endLoad()
 {
 	for (auto& p : _parserEvents)
 	{
-		_events.push_back(p->releseEvents());
+		_events.push_back(p.second->releseEvents());
 	}
 	_parserNames.clear();
 	_parserEvents.clear();
@@ -4622,11 +4622,28 @@ void ScriptGlobal::load(const YAML::YamlNodeReader& reader)
 			}
 		}
 	}
-	if (const YAML::YamlNodeReader& s = reader["scripts"])
+	if (const YAML::YamlNodeReader& scripts = reader["scripts"])
 	{
-		for (auto& p : _parserEvents)
+		if (scripts.hasNullVal() == false && scripts.isMap() == false)
 		{
-			p->loadEvents(s);
+			throw Exception("Wrong type of 'scripts' node at line " + std::to_string(scripts.getLocationInFile().line));
+		}
+
+		for (const auto& p : scripts.children())
+		{
+			auto key = p.key();
+			if (key.length() > 0 && key.back() == '#')
+			{
+				continue;
+			}
+
+			auto event = _parserEvents.find(p.key());
+			if (event == _parserEvents.end())
+			{
+				throw Exception("Unknown '" + std::string(p.key()) + "' node in 'scripts' at line " + std::to_string(p.getLocationInFile().line));
+			}
+
+			event->second->loadEvents(p);
 		}
 	}
 }

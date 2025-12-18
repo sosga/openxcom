@@ -18,6 +18,7 @@
  * along with OpenXcom.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <map>
+#include <unordered_map>
 #include <limits>
 #include <vector>
 #include <string>
@@ -25,6 +26,7 @@
 #include "../Engine/Yaml.h"
 #include <SDL_stdinc.h>
 #include <cassert>
+#include <unordered_set>
 
 #include "HelperMeta.h"
 #include "Logger.h"
@@ -1688,7 +1690,7 @@ private:
 	std::vector<std::vector<char>> _strings;
 	std::vector<std::vector<ScriptContainerBase>> _events;
 	std::map<std::string, ScriptParserBase*> _parserNames;
-	std::vector<ScriptParserEventsBase*> _parserEvents;
+	std::unordered_map<std::string_view, ScriptParserEventsBase*> _parserEvents;
 	std::map<ArgEnum, TagData> _tagNames;
 	std::vector<TagValueType> _tagValueTypes;
 	std::vector<ScriptRefData> _refList;
@@ -1864,7 +1866,29 @@ public:
 	/// Load scripts.
 	void load(const std::string& type, const YAML::YamlNodeReader& reader, const Parent& parsers)
 	{
-		(get<Parsers>().loadContainer(type, reader, parsers.template get<Parsers>()), ...);
+		if (const YAML::YamlNodeReader& scripts = reader["scripts"])
+		{
+			if (scripts.hasNullVal() == false && scripts.isMap() == false)
+			{
+				throw Exception("Wrong type of 'scripts' node at line " + std::to_string(scripts.getLocationInFile().line));
+			}
+
+			for (auto& p : scripts.children())
+			{
+				auto key = p.key();
+				if (key.length() > 0 && key.back() == '#')
+				{
+					continue;
+				}
+
+				if (parsers.isKnowParserName(key) == false)
+				{
+					throw Exception("Unknown '" + std::string(p.key()) + "' node in 'scripts' at line " + std::to_string(p.getLocationInFile().line));
+				}
+			}
+		}
+
+		(get<Parsers>().loadContainer(type, reader, parsers.template get<Parsers>()), ...); //TODO: some scripts need called even if "scripts" is not present
 	}
 };
 
@@ -1902,6 +1926,8 @@ public:
 template<typename Master, typename... Parsers>
 class ScriptGroup : Parsers...
 {
+	std::unordered_set<std::string_view> _allParserNames;
+
 public:
 	using Container = ScriptGroupContainer<ScriptGroup, Parsers...>;
 
@@ -1911,6 +1937,7 @@ public:
 		(void)master;
 		(void)groupName;
 		(shared->pushParser(groupName, &get<Parsers>()), ...);
+		(_allParserNames.insert(get<Parsers>().getName()), ...);
 	}
 
 	/// Get parser by type.
@@ -1925,6 +1952,12 @@ public:
 	const typename SelectedParser::BaseType& get() const
 	{
 		return *static_cast<const SelectedParser*>(this);
+	}
+
+	/// Check if exists parser for given name
+	bool isKnowParserName(std::string_view view) const
+	{
+		return _allParserNames.find(view) != _allParserNames.end();
 	}
 };
 
