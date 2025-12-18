@@ -430,12 +430,12 @@ class ScriptContainer : public ScriptContainerBase
 {
 public:
 	/// Load code from string in YAML node.
-	void load(const std::string& parentName, const YAML::YamlNodeReader& reader, const Parent& parent)
+	void loadContainer(const std::string& parentName, const YAML::YamlNodeReader& reader, const Parent& parent)
 	{
 		parent.parseNode(*this, parentName, reader);
 	}
 	/// Load data from string.
-	void load(const std::string& parentName, const std::string& srcCode, const Parent& parent)
+	void loadContainer(const std::string& parentName, const std::string& srcCode, const Parent& parent)
 	{
 		parent.parseCode(*this, parentName, srcCode);
 	}
@@ -477,12 +477,12 @@ class ScriptContainerEvents : public ScriptContainerEventsBase
 {
 public:
 	/// Load code from string in YAML node.
-	void load(const std::string& parentName, const YAML::YamlNodeReader& reader, const Parent& parent)
+	void loadContainer(const std::string& parentName, const YAML::YamlNodeReader& reader, const Parent& parent)
 	{
 		parent.parseNode(*this, parentName, reader);
 	}
 	/// Load data from string.
-	void load(const std::string& parentName, const std::string& srcCode, const Parent& parent)
+	void loadContainer(const std::string& parentName, const std::string& srcCode, const Parent& parent)
 	{
 		parent.parseCode(*this, parentName, srcCode);
 	}
@@ -1363,9 +1363,6 @@ public:
 		}
 	}
 
-	/// Load global data from YAML.
-	virtual void load(const YAML::YamlNodeReader& reader);
-
 	/// Show all script informations.
 	void logScriptMetadata(bool haveEvents, const std::string& groupName) const;
 
@@ -1547,7 +1544,7 @@ public:
 	ScriptParserEventsBase(ScriptGlobal* shared, const std::string& name);
 
 	/// Load global data from YAML.
-	virtual void load(const YAML::YamlNodeReader& reader) override;
+	void loadEvents(const YAML::YamlNodeReader& reader);
 	/// Get pointer to events.
 	const ScriptContainerBase* getEvents() const;
 	/// Release event data.
@@ -1867,7 +1864,7 @@ public:
 	/// Load scripts.
 	void load(const std::string& type, const YAML::YamlNodeReader& reader, const Parent& parsers)
 	{
-		(get<Parsers>().load(type, reader, parsers.template get<Parsers>()), ...);
+		(get<Parsers>().loadContainer(type, reader, parsers.template get<Parsers>()), ...);
 	}
 };
 

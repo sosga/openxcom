@@ -3878,14 +3878,6 @@ void ScriptParserBase::parseCode(ScriptContainerBase& container, const std::stri
 }
 
 /**
- * Load global data from YAML.
- */
-void ScriptParserBase::load(const YAML::YamlNodeReader& reader)
-{
-
-}
-
-/**
  * Print all metadata
  */
 void ScriptParserBase::logScriptMetadata(bool haveEvents, const std::string& groupName) const
@@ -4059,10 +4051,8 @@ void ScriptParserEventsBase::parseCode(ScriptContainerEventsBase& container, con
 /**
  * Load global data from YAML.
  */
-void ScriptParserEventsBase::load(const YAML::YamlNodeReader& scripts)
+void ScriptParserEventsBase::loadEvents(const YAML::YamlNodeReader& scripts)
 {
-	ScriptParserBase::load(scripts);
-
 	// helper functions to get position in data vector
 	auto findPos = [&](const std::string& n)
 	{
@@ -4634,9 +4624,9 @@ void ScriptGlobal::load(const YAML::YamlNodeReader& reader)
 	}
 	if (const YAML::YamlNodeReader& s = reader["scripts"])
 	{
-		for (auto& p : _parserNames)
+		for (auto& p : _parserEvents)
 		{
-			p.second->load(s);
+			p->loadEvents(s);
 		}
 	}
 }
