@@ -160,6 +160,7 @@ private:
 	void initCraftWeaponList();
 
 	void initSoldierList();
+	void initUnitList();
 
 public:
 	/// Name of class used in script.

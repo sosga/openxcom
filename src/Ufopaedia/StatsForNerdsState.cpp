@@ -597,6 +597,9 @@ void StatsForNerdsState::initLists()
 	case UFOPAEDIA_TYPE_SOLDIER:
 		initSoldierList();
 		break;
+	case UFOPAEDIA_TYPE_UNIT:
+		initUnitList();
+		break;
 	case UFOPAEDIA_TYPE_UNKNOWN:
 		initSoldierBonusList();
 	default:
@@ -4098,6 +4101,132 @@ void StatsForNerdsState::initSoldierList()
 		{
 			addSingleString(ss, mod->getModCreatingRule(soldierRule)->name, "createdByMod");
 			addSingleString(ss, mod->getModLastUpdatingRule(soldierRule)->name, "updatedByMod");
+			endHeading();
+		}
+	}
+}
+
+/**
+ * Shows the "raw" Unit/RuleUnit data.
+ */
+void StatsForNerdsState::initUnitList()
+{
+	_lstRawData->clearList();
+	_lstRawData->setIgnoreSeparators(true);
+
+	std::ostringstream ssTopic;
+	ssTopic << tr(_topicId);
+	if (_showIds)
+	{
+		ssTopic << " [" << _topicId << "]";
+	}
+
+	_txtArticle->setText(tr("STR_ARTICLE").arg(ssTopic.str()));
+
+	Mod* mod = _game->getMod();
+	Unit* unitRule = mod->getUnit(_topicId);
+	if (!unitRule)
+		return;
+
+	_filterOptions.clear();
+	_cbxRelatedStuff->setVisible(false);
+
+	std::ostringstream ss;
+
+	addSingleString(ss, unitRule->getRace(), "race");
+	addSingleString(ss, unitRule->getRank(), "rank");
+
+	addRule(ss, unitRule->getArmor(), "armor");
+	addSpecialAbility(ss, (SpecialAbility)unitRule->getSpecialAbility(), "specab");
+	addBoolean(ss, unitRule->isLivingWeapon(), "livingWeapon");
+	addSingleString(ss, unitRule->getMeleeWeapon(), "meleeWeapon");
+	addSingleString(ss, unitRule->getPsiWeapon(), "psiWeapon", "ALIEN_PSI_WEAPON");
+
+	addBoolean(ss, !unitRule->getBuiltInWeapons().empty(), "_builtInWeaponSets"); // just say if there are any or not
+	addBoolean(ss, !unitRule->getWeightedBuiltInWeapons().empty(), "_weightedBuiltInWeaponSets"); // just say if there are any or not
+
+	addRule(ss, unitRule->getSpawnUnit(), "spawnUnit");
+
+	bool capturableTotal = unitRule->getCapturable() && unitRule->getArmor()->getCorpseBattlescape().front()->isRecoverable() && !unitRule->getSpawnUnit();
+	addBoolean(ss, capturableTotal, "_capturable", true);
+
+	addBoolean(ss, unitRule->getCapturable(), "capturable", true);
+	addBoolean(ss, unitRule->canSurrender(), "canSurrender", false);
+	addBoolean(ss, unitRule->autoSurrender(), "autoSurrender", false);
+
+	addInteger(ss, unitRule->getSpotterDuration(), "spotter"); // not raw!
+	addInteger(ss, unitRule->getSniperPercentage(), "sniper");
+
+	if (_showDebug)
+	{
+		addSection("{Modding section}", "You don't need this info as a player", _white, true);
+
+		addSection("{Naming}", "", _white);
+		addSingleString(ss, unitRule->getType(), "type");
+		addRule(ss, unitRule->getLiveAlienGeoscape(), "liveAlien");
+		addInteger(ss, unitRule->getShowFullNameInAlienInventory(mod), "showFullNameInAlienInventory"); // not raw!
+
+		addSection("{Stats}", "", _white);
+		addInteger(ss, unitRule->getStandHeight(), "standHeight");
+		addInteger(ss, unitRule->getKneelHeight(), "kneelHeight");
+		addInteger(ss, unitRule->getFloatHeight(), "floatHeight");
+		addInteger(ss, unitRule->getMoraleLossWhenKilled(), "moraleLossWhenKilled", 100);
+		addInteger(ss, unitRule->getBerserkChance(), "berserkChance", -1);
+		addInteger(ss, unitRule->getEnergyRecovery(), "energyRecovery", 30);
+
+		addUnitStatBonus(ss, *unitRule->getStats(), "stats");
+
+		addSection("{Flags}", "", _white);
+		addBoolean(ss, unitRule->canPanic(), "canPanic", true);
+		addBoolean(ss, unitRule->canBeMindControlled(), "canBeMindControlled", true);
+		addBoolean(ss, unitRule->isIgnoredByAI(), "ignoredByAI", false);
+		addBoolean(ss, unitRule->isCosmetic(), "cosmetic");
+		addBoolean(ss, unitRule->isVIP(), "vip");
+
+		addSection("{AI}", "", _white);
+		addInteger(ss, unitRule->getIntelligence(), "intelligence");
+		addInteger(ss, unitRule->getAggression(), "aggression");
+		addInteger(ss, unitRule->getPickUpWeaponsMoreActively(), "pickUpWeaponsMoreActively", -1);
+		addBoolean(ss, unitRule->isLeeroyJenkins(), "isLeeroyJenkins");
+		addBoolean(ss, unitRule->avoidsFire(), "avoidsFire", true); // default "_specab < SPECAB_BURNFLOOR"
+		addBoolean(ss, unitRule->waitIfOutsideWeaponRange(), "waitIfOutsideWeaponRange");
+
+		addSection("{Debriefing}", "", _white);
+		addInteger(ss, unitRule->getValue(), "value", 0);
+		addBoolean(ss, unitRule->isRecoverableAsCivilian(), "civilianRecoveryType*"); // just say if there are any or not
+		addBoolean(ss, unitRule->isRecoverableAsScientist(), "_recoverScientist");
+		addBoolean(ss, unitRule->isRecoverableAsEngineer(), "_recoverEngineer");
+		addRule(ss, unitRule->getCivilianRecoveryItemType(), "_recoverItem");
+		addRule(ss, unitRule->getCivilianRecoverySoldierType(), "_recoverSoldier");
+		addSingleString(ss, unitRule->getSpawnedPersonName(), "spawnedPersonName");
+		addBoolean(ss, !unitRule->getSpawnedSoldierTemplate().yaml.empty(), "spawnedSoldier*"); // just say if there are any or not
+
+		addSection("{Sounds}", "", _white);
+		addInteger(ss, unitRule->getMoveSound(), "moveSound", -1);
+		std::vector<int> tmpSoundVector;
+		tmpSoundVector.push_back(unitRule->getMoveSound());
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", tmpSoundVector);
+		addVectorOfIntegers(ss, unitRule->getDeathSounds(), "deathSound");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", unitRule->getDeathSounds());
+		addVectorOfIntegers(ss, unitRule->getSelectUnitSounds(), "selectUnitSound");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", unitRule->getSelectUnitSounds());
+		addVectorOfIntegers(ss, unitRule->getStartMovingSounds(), "startMovingSound");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", unitRule->getStartMovingSounds());
+		addVectorOfIntegers(ss, unitRule->getSelectWeaponSounds(), "selectWeaponSound");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", unitRule->getSelectWeaponSounds());
+		addVectorOfIntegers(ss, unitRule->getAnnoyedSounds(), "annoyedSound");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", unitRule->getAnnoyedSounds());
+		addVectorOfIntegers(ss, unitRule->getPanicSounds(), "panicSound");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", unitRule->getPanicSounds());
+		addVectorOfIntegers(ss, unitRule->getBerserkSounds(), "berserkSound");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", unitRule->getBerserkSounds());
+		addVectorOfIntegers(ss, unitRule->getAggroSounds(), "aggroSound");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", unitRule->getAggroSounds());
+
+		addSection("{Mod info}", "", _white);
+		{
+			addSingleString(ss, mod->getModCreatingRule(unitRule)->name, "createdByMod");
+			addSingleString(ss, mod->getModLastUpdatingRule(unitRule)->name, "updatedByMod");
 			endHeading();
 		}
 	}
