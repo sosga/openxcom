@@ -159,6 +159,8 @@ private:
 	void initUfoList();
 	void initCraftWeaponList();
 
+	void initSoldierList();
+
 public:
 	/// Name of class used in script.
 	static constexpr const char *ScriptName = "StatsForNerds";

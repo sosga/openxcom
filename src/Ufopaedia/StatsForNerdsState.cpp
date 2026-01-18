@@ -594,6 +594,9 @@ void StatsForNerdsState::initLists()
 	case UFOPAEDIA_TYPE_TFTD_CRAFT_WEAPON:
 		initCraftWeaponList();
 		break;
+	case UFOPAEDIA_TYPE_SOLDIER:
+		initSoldierList();
+		break;
 	case UFOPAEDIA_TYPE_UNKNOWN:
 		initSoldierBonusList();
 	default:
@@ -3952,6 +3955,149 @@ void StatsForNerdsState::initCraftWeaponList()
 		{
 			addSingleString(ss, mod->getModCreatingRule(craftWeaponRule)->name, "createdByMod");
 			addSingleString(ss, mod->getModLastUpdatingRule(craftWeaponRule)->name, "updatedByMod");
+			endHeading();
+		}
+	}
+}
+
+/**
+ * Shows the "raw" RuleSoldier data.
+ */
+void StatsForNerdsState::initSoldierList()
+{
+	_lstRawData->clearList();
+	_lstRawData->setIgnoreSeparators(true);
+
+	std::ostringstream ssTopic;
+	ssTopic << tr(_topicId);
+	if (_showIds)
+	{
+		ssTopic << " [" << _topicId << "]";
+	}
+
+	_txtArticle->setText(tr("STR_ARTICLE").arg(ssTopic.str()));
+
+	Mod* mod = _game->getMod();
+	RuleSoldier* soldierRule = mod->getSoldier(_topicId);
+	if (!soldierRule)
+		return;
+
+	_filterOptions.clear();
+	_cbxRelatedStuff->setVisible(false);
+
+	std::ostringstream ss;
+
+	addBoolean(ss, soldierRule->getAllowPiloting(), "allowPiloting", true);
+
+	addRule(ss, soldierRule->getDefaultArmor(), "armor");
+	addRule(ss, soldierRule->getSpecialWeapon(), "specialWeapon");
+
+	addVectorOfStrings(ss, soldierRule->getRequirements(), "requires");
+	addVectorOfStrings(ss, mod->getBaseFunctionNames(soldierRule->getRequiresBuyBaseFunc()), "requiresBuyBaseFunc");
+	addSingleString(ss, soldierRule->getRequiresBuyCountry(), "requiresBuyCountry");
+
+	addInteger(ss, soldierRule->getBuyCost(), "costBuy", 0, true);
+	addInteger(ss, soldierRule->getMonthlyBuyLimit(), "monthlyBuyLimit");
+
+	int time = soldierRule->getTransferTime();
+	if (time == 0)
+		time = _game->getMod()->getPersonnelTime();
+
+	addInteger(ss, time, "transferTime"); // not raw!
+
+	int baseCost = soldierRule->getSalaryCost(0);
+	addInteger(ss, baseCost, "costSalary", 0, true);
+	addInteger(ss, soldierRule->getSalaryCost(1) - baseCost, "costSalarySquaddie", 0, true);
+	addInteger(ss, soldierRule->getSalaryCost(2) - baseCost, "costSalarySergeant", 0, true);
+	addInteger(ss, soldierRule->getSalaryCost(3) - baseCost, "costSalaryCaptain", 0, true);
+	addInteger(ss, soldierRule->getSalaryCost(4) - baseCost, "costSalaryColonel", 0, true);
+	addInteger(ss, soldierRule->getSalaryCost(5) - baseCost, "costSalaryCommander", 0, true);
+
+	if (_showDebug)
+	{
+		addSection("{Modding section}", "You don't need this info as a player", _white, true);
+
+		addSection("{Naming}", "", _white);
+		addSingleString(ss, soldierRule->getType(), "type");
+		addBoolean(ss, soldierRule->getShowTypeInInventory(), "showTypeInInventory");
+		addInteger(ss, soldierRule->getNames().size(), "soldierNames*"); // size only
+		addInteger(ss, soldierRule->getFemaleFrequency(), "femaleFrequency", 50);
+		addInteger(ss, soldierRule->getStatStrings().size(), "statStrings*"); // size only
+
+		addInteger(ss, soldierRule->getRankStrings().size(), "rankStrings*"); // size only
+		addBoolean(ss, soldierRule->getAllowPromotion(), "allowPromotion", true);
+
+		addSingleString(ss, soldierRule->getMonthlyBuyLimitMessage(), "monthlyBuyLimitMessage");
+
+		addSection("{Stats}", "", _white);
+		addBoolean(ss, !soldierRule->getSpawnedSoldierTemplate().yaml.empty(), "spawnedSoldier*"); // just say if there are any or not
+
+		addInteger(ss, soldierRule->getStandHeight(), "standHeight");
+		addInteger(ss, soldierRule->getKneelHeight(), "kneelHeight");
+		addInteger(ss, soldierRule->getFloatHeight(), "floatHeight");
+		addInteger(ss, soldierRule->getMoraleLossWhenKilled(), "moraleLossWhenKilled", 100);
+		addInteger(ss, soldierRule->getValue(), "value", 20);
+
+		addUnitStatBonus(ss, soldierRule->getMinStats(), "minStats");
+		addUnitStatBonus(ss, soldierRule->getMaxStats(), "maxStats");
+		addUnitStatBonus(ss, soldierRule->getStatCaps(), "statCaps");
+		addUnitStatBonus(ss, soldierRule->getTrainingStatCaps(), "trainingStatCaps");
+
+		addUnitStatBonus(ss, soldierRule->getDogfightExperience(), "dogfightExperience");
+
+		addSection("{Other}", "", _white);
+		addInteger(ss, soldierRule->getGroup(), "group");
+		addInteger(ss, soldierRule->getSkills().size(), "skills*"); // size only
+
+		addSection("{Visuals}", "", _white);
+		addRule(ss, soldierRule->getDefaultArmor(), "armorForAvatar");
+		addInteger(ss, soldierRule->getAvatarOffsetX(), "avatarOffsetX", 67);
+		addInteger(ss, soldierRule->getAvatarOffsetY(), "avatarOffsetY", 48);
+		addInteger(ss, soldierRule->getFlagOffset(), "flagOffset");
+
+		addInteger(ss, soldierRule->getRankSprite(), "rankSprite", 42);
+		addSpriteResourcePath(ss, mod, "BASEBITS.PCK", soldierRule->getRankSprite());
+		addInteger(ss, soldierRule->getRankSpriteBattlescape(), "rankBattleSprite", 20);
+		addSpriteResourcePath(ss, mod, "SMOKE.PCK", soldierRule->getRankSpriteBattlescape());
+		addInteger(ss, soldierRule->getRankSpriteTiny(), "rankTinySprite", -1); // always show
+		addSpriteResourcePath(ss, mod, "TinyRanks", soldierRule->getRankSpriteTiny());
+		addInteger(ss, soldierRule->getSkillIconSprite(), "skillIconSprite", 1);
+		addSpriteResourcePath(ss, mod, "SPICONS.DAT", soldierRule->getSkillIconSprite());
+
+		addSection("{Sounds}", "", _white);
+		addVectorOfIntegers(ss, soldierRule->getMaleDeathSounds(), "deathMale");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", soldierRule->getMaleDeathSounds());
+		addVectorOfIntegers(ss, soldierRule->getFemaleDeathSounds(), "deathFemale");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", soldierRule->getFemaleDeathSounds());
+		addVectorOfIntegers(ss, soldierRule->getMaleSelectUnitSounds(), "selectUnitMale");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", soldierRule->getMaleSelectUnitSounds());
+		addVectorOfIntegers(ss, soldierRule->getFemaleSelectUnitSounds(), "selectUnitFemale");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", soldierRule->getFemaleSelectUnitSounds());
+		addVectorOfIntegers(ss, soldierRule->getMaleStartMovingSounds(), "startMovingMale");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", soldierRule->getMaleStartMovingSounds());
+		addVectorOfIntegers(ss, soldierRule->getFemaleStartMovingSounds(), "startMovingFemale");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", soldierRule->getFemaleStartMovingSounds());
+		addVectorOfIntegers(ss, soldierRule->getMaleSelectWeaponSounds(), "selectWeaponMale");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", soldierRule->getMaleSelectWeaponSounds());
+		addVectorOfIntegers(ss, soldierRule->getFemaleSelectWeaponSounds(), "selectWeaponFemale");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", soldierRule->getFemaleSelectWeaponSounds());
+		addVectorOfIntegers(ss, soldierRule->getMaleAnnoyedSounds(), "annoyedMale");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", soldierRule->getMaleAnnoyedSounds());
+		addVectorOfIntegers(ss, soldierRule->getFemaleAnnoyedSounds(), "annoyedFemale");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", soldierRule->getFemaleAnnoyedSounds());
+		addVectorOfIntegers(ss, soldierRule->getMalePanicSounds(), "panicMale");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", soldierRule->getMalePanicSounds());
+		addVectorOfIntegers(ss, soldierRule->getFemalePanicSounds(), "panicFemale");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", soldierRule->getFemalePanicSounds());
+		addVectorOfIntegers(ss, soldierRule->getMaleBerserkSounds(), "berserkMale");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", soldierRule->getMaleBerserkSounds());
+		addVectorOfIntegers(ss, soldierRule->getFemaleBerserkSounds(), "berserkFemale");
+		addSoundVectorResourcePaths(ss, mod, "BATTLE.CAT", soldierRule->getFemaleBerserkSounds());
+
+		addSection("{Mod info}", "", _white);
+		{
+			addSingleString(ss, mod->getModCreatingRule(soldierRule)->name, "createdByMod");
+			addSingleString(ss, mod->getModLastUpdatingRule(soldierRule)->name, "updatedByMod");
 			endHeading();
 		}
 	}
