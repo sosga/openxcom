@@ -4742,6 +4742,12 @@ void GeoscapeState::resize(int &dX, int &dY)
 	}
 	switch (Options::geoscapeScale)
 	{
+	case SCALE_SCREEN_DIV_10:
+		divisor = 10;
+		break;
+	case SCALE_SCREEN_DIV_8:
+		divisor = 8;
+		break;
 	case SCALE_SCREEN_DIV_6:
 		divisor = 6;
 		break;
