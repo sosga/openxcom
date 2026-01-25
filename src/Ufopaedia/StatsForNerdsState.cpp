@@ -3775,6 +3775,7 @@ void StatsForNerdsState::initUfoList()
 		addInteger(ss, ufoRule->getMissilePower(), "missilePower");
 		addBoolean(ss, ufoRule->isUnmanned(), "unmanned");
 		addBoolean(ss, ufoRule->isInstaHyper(), "instaHyper");
+		addBoolean(ss, ufoRule->isNoAlert(), "noAlert");
 		addInteger(ss, ufoRule->getSplashdownSurvivalChance(), "splashdownSurvivalChance", 100);
 		addInteger(ss, ufoRule->getFakeWaterLandingChance(), "fakeWaterLandingChance", 0);
 
