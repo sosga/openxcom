@@ -178,15 +178,14 @@ void UnitFallBState::think()
 			bool escapeFound = false;
 
 			// We need to move all sections of the unit out of the way.
-			std::vector<Position> bodySections;
-			for (int x = unitBelow->getArmor()->getSize() - 1; x >= 0; --x)
+			const int bodyTotalSize = unitBelow->getArmor()->getTotalSize();
+			const Position bodyOffsets[4] =
 			{
-				for (int y = unitBelow->getArmor()->getSize() - 1; y >= 0; --y)
-				{
-					Position bs = unitBelow->getPosition() + Position(x, y, 0);
-					bodySections.push_back(bs);
-				}
-			}
+				{ 0, 0, 0 },
+				{ 1, 0, 0 },
+				{ 0, 1, 0 },
+				{ 1, 1, 0 },
+			};
 
 			// Check in each compass direction.
 			for (int dir = 0; dir < Pathfinding::DIR_UP && !escapeFound; dir++)
@@ -202,9 +201,9 @@ void UnitFallBState::think()
 					continue;
 				}
 
-				for (auto bsIt = bodySections.begin(); bsIt < bodySections.end(); )
+				for (auto bs = 0; bs < bodyTotalSize; )
 				{
-					Position originalPosition = (*bsIt);
+					Position originalPosition = unitBelow->getPosition() + bodyOffsets[bs];
 					Position endPosition = originalPosition + offset;
 
 					Tile *t = _parent->getSave()->getTile(endPosition);
@@ -224,7 +223,7 @@ void UnitFallBState::think()
 					if (canMoveToTile)
 					{
 						// Check next section of the unit.
-						++bsIt;
+						++bs;
 					}
 					else
 					{
@@ -233,7 +232,7 @@ void UnitFallBState::think()
 					}
 
 					// If all sections of the fallen onto unit can be moved, then we move it.
-					if (bsIt == bodySections.end())
+					if (bs == bodyTotalSize)
 					{
 						if (_parent->getSave()->addFallingUnit(unitBelow))
 						{
