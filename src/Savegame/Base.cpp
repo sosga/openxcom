@@ -1470,7 +1470,7 @@ int Base::getUsedContainment(int prisonType, bool onlyExternal) const
 		const RuleResearch *projRules = proj->getRules();
 		if (projRules->needItem() && projRules->destroyItem())
 		{
-			rule = _mod->getItem(projRules->getName(), false); // don't use getNeededItem()
+			rule = projRules->getNeededItem();
 			if (rule && rule->isAlien() && rule->getPrisonType() == prisonType)
 			{
 				++total;
@@ -2074,12 +2074,12 @@ void Base::cleanupPrisons(int prisonType)
 			const RuleResearch* projRules = project->getRules();
 			if (projRules->needItem() && projRules->destroyItem())
 			{
-				RuleItem* rule = _mod->getItem(projRules->getName(), false); // don't use getNeededItem()
+				const RuleItem* rule = projRules->getNeededItem();
 				if (rule && rule->isAlien() && rule->getPrisonType() == prisonType)
 				{
 					_scientists += project->getAssigned();
 					project->setAssigned(0);
-					getStorageItems()->addItem(projRules->getNeededItem(), 1);
+					getStorageItems()->addItem(rule, 1);
 					return true;
 				}
 			}
