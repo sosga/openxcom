@@ -215,7 +215,7 @@ const std::string& Unit::getType() const
  * Returns the unit's stats data object.
  * @return The unit's stats.
  */
-UnitStats *Unit::getStats()
+const UnitStats *Unit::getStats() const
 {
 	return &_stats;
 }
@@ -251,9 +251,9 @@ int Unit::getFloatHeight() const
  * Gets the unit's armor type.
  * @return The unit's armor type.
  */
-Armor* Unit::getArmor() const
+const Armor* Unit::getArmor() const
 {
-	return const_cast<Armor*>(_armor); //TODO: fix this function usage to remove const cast
+	return _armor;
 }
 
 /**
