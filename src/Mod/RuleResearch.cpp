@@ -45,7 +45,7 @@ void RuleResearch::load(const YAML::YamlNodeReader& node, Mod* mod, const ModScr
 		load(parent, mod, parsers);
 	}
 
-	reader.tryRead("lookup", _lookup);
+	reader.tryRead("lookup", _lookupName);
 	reader.tryRead("cutscene", _cutscene);
 	reader.tryRead("spawnedItem", _spawnedItem);
 	reader.tryRead("spawnedItemCount", _spawnedItemCount);
@@ -86,10 +86,12 @@ void RuleResearch::afterLoad(const Mod* mod)
 		throw Exception("Research topic " + _name + " has requirements, but the cost is not zero. Sorry, this is not allowed!");
 	}
 
-	if (_lookup == _name)
+	if (_lookupName == _name)
 	{
-		_lookup = "";
+		_lookupName = "";
 	}
+	mod->linkRule(_lookup, _lookupName);
+
 
 	if (_needItem)
 	{
@@ -248,15 +250,6 @@ const std::vector<const RuleResearch*> &RuleResearch::getGetOneFree() const
 const std::vector<std::pair<const RuleResearch*, std::vector<const RuleResearch*> > > &RuleResearch::getGetOneFreeProtected() const
 {
 	return _getOneFreeProtected;
-}
-
-/**
- * Gets what article to look up in the ufopedia.
- * @return The article to look up in the ufopaedia
- */
-const std::string &RuleResearch::getLookup() const
-{
-	return _lookup;
 }
 
 /**

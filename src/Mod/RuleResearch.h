@@ -43,7 +43,7 @@ class Mod;
 class RuleResearch
 {
  private:
-	std::string _name, _lookup, _cutscene, _spawnedItem, _spawnedEvent;
+	std::string _name, _lookupName, _cutscene, _spawnedItem, _spawnedEvent;
 	int _spawnedItemCount;
 	std::vector<std::string> _spawnedItemList;
 	std::vector<std::string> _decreaseCounter, _increaseCounter;
@@ -54,6 +54,7 @@ class RuleResearch
 	bool _sequentialGetOneFree;
 	std::vector<std::pair<std::string, std::vector<std::string> > > _getOneFreeProtectedName;
 	std::vector<std::pair<const RuleResearch*, std::vector<const RuleResearch*> > > _getOneFreeProtected;
+	const RuleResearch* _lookup = nullptr;
 	std::string _neededItemName;
 	const RuleItem* _neededItem = nullptr;
 	bool _needItem, _destroyItem, _returnsItem = false, _unlockFinalMission;
@@ -115,7 +116,7 @@ public:
 	/// Gets the list(s) of ResearchProjects granted at random for free by this research (if a defined prerequisite is met).
 	const std::vector<std::pair<const RuleResearch*, std::vector<const RuleResearch*> > > &getGetOneFreeProtected() const;
 	/// Gets what to look up in the ufopedia.
-	const std::string &getLookup() const;
+	const RuleResearch* getLookup() const { return _lookup; }
 	/// Gets the requirements for this ResearchProject.
 	const std::vector<const RuleResearch*> &getRequirements() const;
 	/// Gets the base requirements for this ResearchProject.
