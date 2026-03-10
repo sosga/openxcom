@@ -324,6 +324,8 @@ void RuleResearch::ScriptRegister(ScriptParserBase* parser)
 
 	ar.add<&RuleResearch::getCost>("getCost");
 	ar.add<&RuleResearch::getPoints>("getPoints");
+	ar.add<&RuleResearch::getLookup>("getLookup");
+	ar.add<&RuleResearch::getNeededItem>("getNeededItem");
 
 	ar.addScriptValue<BindBase::OnlyGet, &RuleResearch::_scriptValues>();
 	ar.addDebugDisplay<&debugDisplayScript>();
