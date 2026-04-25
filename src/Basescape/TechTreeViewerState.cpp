@@ -1442,6 +1442,27 @@ void TechTreeViewerState::initLists()
 			}
 		}
 
+		// 4c. random events
+		auto& randomEvents = rule->getEventsRaw();
+		if (!randomEvents.empty())
+		{
+			_lstRight->addRow(1, tr("STR_RANDOM_EVENTS").c_str());
+			_lstRight->setRowColor(row, _blue);
+			_rightTopics.push_back("-");
+			_rightFlags.push_back(TTV_NONE);
+			++row;
+			for (auto& randomEvent : randomEvents.getChoicesRaw())
+			{
+				std::ostringstream chance;
+				chance << "  " << tr(randomEvent.first) << ": " << randomEvent.second;
+				_lstRight->addRow(1, chance.str().c_str());
+				_lstRight->setRowColor(row, _white);
+				_rightTopics.push_back("-");
+				_rightFlags.push_back(TTV_NONE);
+				++row;
+			}
+		}
+
 		// 5. person joining
 		if (rule->getSpawnedPersonType() != "")
 		{
